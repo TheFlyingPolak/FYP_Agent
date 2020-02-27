@@ -1,11 +1,15 @@
 from runner import Runner
 import getopt
+import sched
 import sys
+import threading
+import time
 
 
 def main(argv):
-    url = 'localhost:8080'
-    time = '60'
+    running = True
+    url = 'localhost:8080'      # the address of the server to communicate with
+    log_time = '60'     # log time is in minutes
     try:
         opts, args = getopt.getopt(argv, 'u:t:', ['url=', 'time='])
     except getopt.GetoptError:
@@ -16,10 +20,14 @@ def main(argv):
         if opt in ('-u', '--url'):
             url = arg
         elif opt in ('-t', '--time'):
-            time = arg
+            log_time = arg
 
     url = 'http://' + url
-    runner = Runner(url, time, '')
+    runner = Runner(url, log_time, '')
+
+    while running:
+        time.sleep(float(log_time) * 60)
+        runner.run()
 
 
 if __name__ == '__main__':
