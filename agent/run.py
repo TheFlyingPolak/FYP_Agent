@@ -3,8 +3,11 @@ import getopt
 import json
 import sys
 import socketserver
+import subprocess
 from crontab import CronTab
 from http.server import BaseHTTPRequestHandler
+
+job_comment = 'agent'
 
 
 def main(argv):
@@ -25,10 +28,10 @@ def main(argv):
 
     runner = Runner('http://' + url, '', '')
     agent_id = runner.initialise()
-    open('tabfile.tab', 'w')
     cron = CronTab(user=True)
     command = '/usr/bin/python3 /home/student/agent/runner.py -u ' + url + ' -i ' + agent_id
-    job = cron.new(command=command)
+    remove_job_if_exists(cron)
+    job = cron.new(command=command, comment=job_comment)
     print('cron will run every', log_time, 'minutes')
     log_time_int = int(log_time)
     job.minute.every(log_time_int)
@@ -41,10 +44,13 @@ def main(argv):
                     content_length = int(self.headers['Content-Length'])
                     command_data = self.rfile.read(content_length)
                     command_json = json.loads(command_data.decode('utf-8'))
-                    if command_json['command'] == 'log_now':
-                        print('log now')
-                    elif command_json['command'] == 'change_log_time_interval':
-                        print('change log time interval')
+                    if command_json['command'] == 'log_now' or command_json['command'] == 'change_log_time_interval':
+                        nonlocal log_time
+                        if command_json['command'] == 'change_log_time_interval':
+                            log_time = command_json['time']
+                        reschedule_job(cron, command, log_time)
+                        subprocess.run(command.split(" "))
+
             self.send_response(200)
             self.send_header('Content-type', 'text/html')
             self.end_headers()
@@ -52,6 +58,20 @@ def main(argv):
     # command listening thread
     httpd = socketserver.TCPServer(('', 8081), Handler)
     httpd.serve_forever()
+
+
+def remove_job_if_exists(cron):
+    for job in cron:
+        if job.comment == job_comment:
+            cron.remove(job)
+            cron.write()
+
+
+def reschedule_job(cron, command, time):
+    remove_job_if_exists(cron)
+    job = cron.new(command=command, comment=job_comment)
+    job.minute.every(int(time))
+    cron.write()
 
 
 if __name__ == '__main__':
