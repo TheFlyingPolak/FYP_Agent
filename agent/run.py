@@ -1,6 +1,7 @@
 from runner import Runner
 import getopt
 import json
+import signal
 import sys
 import socketserver
 import subprocess
@@ -8,9 +9,12 @@ from crontab import CronTab
 from http.server import BaseHTTPRequestHandler
 
 job_comment = 'agent'
+cron = CronTab(user=True)
 
 
 def main(argv):
+    signal.signal(signal.SIGTERM, signal_handler)
+
     url = 'localhost:8080'      # the address of the server to communicate with
     log_time = '60'     # log time is in minutes
     agent_id = ''
@@ -28,9 +32,8 @@ def main(argv):
 
     runner = Runner('http://' + url, '', '')
     agent_id = runner.initialise()
-    cron = CronTab(user=True)
     command = '/usr/bin/python3 /home/student/agent/runner.py -u ' + url + ' -i ' + agent_id
-    remove_job_if_exists(cron)
+    remove_job_if_exists()
     job = cron.new(command=command, comment=job_comment)
     print('cron will run every', log_time, 'minutes')
     log_time_int = int(log_time)
@@ -48,7 +51,7 @@ def main(argv):
                         nonlocal log_time
                         if command_json['command'] == 'change_log_time_interval':
                             log_time = command_json['time']
-                        reschedule_job(cron, command, log_time)
+                        reschedule_job(command, log_time)
                         subprocess.run(command.split(" "))
 
             self.send_response(200)
@@ -60,18 +63,24 @@ def main(argv):
     httpd.serve_forever()
 
 
-def remove_job_if_exists(cron):
+def remove_job_if_exists():
     for job in cron:
         if job.comment == job_comment:
             cron.remove(job)
             cron.write()
 
 
-def reschedule_job(cron, command, time):
-    remove_job_if_exists(cron)
+def reschedule_job(command, time):
+    remove_job_if_exists()
     job = cron.new(command=command, comment=job_comment)
     job.minute.every(int(time))
     cron.write()
+
+
+def signal_handler(sig, frame):
+    print('Agent is terminating...')
+    remove_job_if_exists()
+    exit(0)
 
 
 if __name__ == '__main__':
