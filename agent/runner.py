@@ -12,17 +12,18 @@ class Runner:
     def __init__(self, url, path, agent_id):
         self._server_url = url
         self._log_file_path = path + '/log.json'
-        if id is None:
-            self._id_number_string = ''
+        if agent_id is None:
+            self._id_number_string = '-1'
         else:
-            self._id_number_string = str(agent_id)
-        self._logger = Logger(path)
+            self._id_number_string = agent_id
+        self._logger = Logger(path, self._id_number_string)
 
     def initialise(self):
         log_json = self._log()
         url = self._server_url + '/agents'
         headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
-        r = requests.post(url, data=open('./log.json', 'rb'), headers=headers)
+        payload = {'json_payload': log_json}
+        r = requests.post(url, data=log_json, headers=headers)
         if r.status_code == 200:
             self._id_number_string = r.text
             self.run()
@@ -32,7 +33,8 @@ class Runner:
         log_json = self._log()
         url = self._server_url + '/agents/' + self._id_number_string
         headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
-        r = requests.put(url, data=open('./log.json', 'rb'), headers=headers)
+        payload = {'json_payload': log_json}
+        r = requests.put(url, data=log_json, headers=headers)
 
     def _log(self):
         log_dict = self._logger.log()

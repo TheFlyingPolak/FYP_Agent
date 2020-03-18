@@ -7,15 +7,18 @@ import subprocess
 class Logger:
     regex = 'Name\s*Version\s*Architecture\s*Description'
 
-    def __init__(self, path):
+    def __init__(self, path, agent_id):
         self._file_path = path
+        self.id = agent_id
 
     def log(self):
         log_dict = OrderedDict()
+        # log agent id
+        log_dict['id'] = self.id
         # get machine hostname and write to dictionary
         process = subprocess.Popen(['hostname', '--fqdn'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = process.communicate(timeout=15)
-        log_dict['host_name'] = out.decode('ascii').replace('\n', '')
+        log_dict['hostname'] = out.decode('ascii').replace('\n', '')
 
         # get machine OS name and version and write to dictionary
         process = subprocess.Popen(['cat', '/etc/os-release'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -23,8 +26,8 @@ class Logger:
         os_release = out.decode('ascii').split('\n')
         name = os_release[0].split('=')
         version = os_release[1].split('=')
-        log_dict['os_name'] = name[1].replace('"', '')
-        log_dict['os_version'] = version[1].replace('"', '')
+        log_dict['osName'] = name[1].replace('"', '')
+        log_dict['osVersion'] = version[1].replace('"', '')
 
         # get data on all installed packages and write to dictionary
         packages_list = []

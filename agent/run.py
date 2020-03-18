@@ -30,7 +30,7 @@ def main(argv):
         elif opt in ('-t', '--time'):
             log_time = arg
 
-    runner = Runner('http://' + url, '', '')
+    runner = Runner('http://' + url, '', None)
     agent_id = runner.initialise()
     command = '/usr/bin/python3 /home/student/agent/runner.py -u ' + url + ' -i ' + agent_id
     remove_job_if_exists()
