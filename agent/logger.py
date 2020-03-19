@@ -16,7 +16,7 @@ class Logger:
         # log agent id
         log_dict['id'] = self.id
         # get machine hostname and write to dictionary
-        process = subprocess.Popen(['hostname', '--fqdn'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        process = subprocess.Popen(['hostname', '-I'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = process.communicate(timeout=15)
         log_dict['hostname'] = out.decode('ascii').replace('\n', '')
 
