@@ -21,7 +21,7 @@ class Logger:
         # get machine hostname and write to dictionary
         process = subprocess.Popen(['hostname', '-I'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = process.communicate(timeout=15)
-        log_dict['hostname'] = out.decode('utf-8').replace('\n', '')
+        log_dict['hostname'] = out.decode('utf-8').replace(' ', '').replace('\n', '')
 
         # get machine OS name and version and write to dictionary
         process = subprocess.Popen(['cat', '/etc/os-release'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
