@@ -2,6 +2,7 @@ from collections import OrderedDict
 import os
 import re
 import subprocess
+from datetime import datetime
 
 
 class Logger:
@@ -13,8 +14,10 @@ class Logger:
 
     def log(self):
         log_dict = OrderedDict()
-        # log agent id
         log_dict['id'] = self.id
+        date = datetime.now()
+        date_string = date.strftime('%Y-%m-%d %H:%M:%S')
+        log_dict['timestamp'] = date_string
         # get machine hostname and write to dictionary
         process = subprocess.Popen(['hostname', '-I'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = process.communicate(timeout=15)
@@ -46,9 +49,7 @@ class Logger:
             line = f.readline()
             while line is not '':
                 list_raw = line.split()
-                separator = ' '
-                package = {'name': list_raw[1], 'version': list_raw[2], 'architecture': list_raw[3],
-                           'description': separator.join(list_raw[4:])}
+                package = {'name': list_raw[1], 'version': list_raw[2], 'architecture': list_raw[3]}
                 packages_list.append(package.copy())
                 line = f.readline()
 
