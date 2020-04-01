@@ -26,6 +26,7 @@ class Runner:
         r = requests.post(url, data=log_json, headers=headers)
         if r.status_code == 200:
             self._id_number_string = r.text
+            self._logger.id = self._id_number_string
             self.run()
         return self._id_number_string
 

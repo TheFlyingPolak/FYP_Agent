@@ -18,12 +18,12 @@ class Logger:
         # get machine hostname and write to dictionary
         process = subprocess.Popen(['hostname', '-I'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = process.communicate(timeout=15)
-        log_dict['hostname'] = out.decode('ascii').replace('\n', '')
+        log_dict['hostname'] = out.decode('utf-8').replace('\n', '')
 
         # get machine OS name and version and write to dictionary
         process = subprocess.Popen(['cat', '/etc/os-release'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = process.communicate(timeout=15)
-        os_release = out.decode('ascii').split('\n')
+        os_release = out.decode('utf-8').split('\n')
         name = os_release[0].split('=')
         version = os_release[1].split('=')
         log_dict['osName'] = name[1].replace('"', '')
@@ -35,7 +35,7 @@ class Logger:
             cmd = ['dpkg', '-l']
             process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             out, err = process.communicate(timeout=15)
-            f.write(out.decode('ascii'))
+            f.write(out.decode('utf-8'))
 
             f.seek(0, 0)
             line = f.readline()
@@ -54,7 +54,7 @@ class Logger:
 
             log_dict['packages'] = packages_list
 
-        #if os.path.exists(self._file_path + 'log.txt'):
-        #    os.remove(self._file_path + 'log.txt')
+        if os.path.exists(self._file_path + 'log.txt'):
+            os.remove(self._file_path + 'log.txt')
 
         return log_dict

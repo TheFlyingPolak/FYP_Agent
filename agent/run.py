@@ -1,6 +1,7 @@
 from runner import Runner
 import getopt
 import json
+import os
 import signal
 import sys
 import socketserver
@@ -14,6 +15,7 @@ cron = CronTab(user=True)
 
 def main(argv):
     signal.signal(signal.SIGTERM, signal_handler)
+    signal.signal(signal.SIGINT, signal_handler)
 
     url = 'localhost:8080'      # the address of the server to communicate with
     log_time = '60'     # log time is in minutes
@@ -32,7 +34,7 @@ def main(argv):
 
     runner = Runner('http://' + url, '', None)
     agent_id = runner.initialise()
-    command = '/usr/bin/python3 /home/student/agent/runner.py -u ' + url + ' -i ' + agent_id
+    command = '/usr/bin/python3 ' + os.getcwd() + '/runner.py -u ' + url + ' -i ' + agent_id
     remove_job_if_exists()
     job = cron.new(command=command, comment=job_comment)
     print('cron will run every', log_time, 'minutes')
@@ -54,9 +56,9 @@ def main(argv):
                         reschedule_job(command, log_time)
                         subprocess.run(command.split(" "))
 
-            self.send_response(200)
-            self.send_header('Content-type', 'text/html')
-            self.end_headers()
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
 
     # command listening thread
     httpd = socketserver.TCPServer(('', 8081), Handler)
