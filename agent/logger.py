@@ -14,7 +14,7 @@ class Logger:
 
     def log(self):
         log_dict = OrderedDict()
-        log_dict['id'] = self.id
+        log_dict['agentId'] = self.id
         date = datetime.now()
         date_string = date.strftime('%Y-%m-%d %H:%M:%S')
         log_dict['timestamp'] = date_string
