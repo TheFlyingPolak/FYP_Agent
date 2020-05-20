@@ -17,7 +17,7 @@ This is the entry point for cron jobs. When ```run.py``` schedules the package l
 Command line arguments:
 - ```-u <address>```: CAS URL in the format ```http://address:port``` (default - ```http://localhost:8080```)
 - ```-p <path>```: The path where the local copy of the log should be stored. By default stores in the same directory as this script
--```-i <id>```: The agent's ID. Does not run if unspecified.
+- ```-i <id>```: The agent's ID. Does not run if unspecified.
 ### ```logger.py```
 This script defines the Logger class, which performs the logging operation. It uses the dpkg package manager to get a table of installed packages and their versions, and returns them as a dictionary.
 
