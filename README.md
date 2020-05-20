@@ -3,8 +3,8 @@
 This repository contains the element of the Final Year Project which logs information about packages installed on Debian machines, along with their versions, and sends them to the [Central Administration Server (CAS)](https://github.com/TheFlyingPolak/FYP_CAS)
 
 ## Project Structre
-agent: contains the agent described above
-agent_console: contains a script used to send commands to the agent from its host device
+- agent: contains the agent described above
+- agent_console: contains a script used to send commands to the agent from its host device
 
 ## Agent structure
 ### ```run.py```
